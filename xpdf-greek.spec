@@ -6,7 +6,7 @@ Release:	3
 License:	GPL
 Group:		X11/Applications
 Source0:	ftp://ftp.foolabs.com/pub/xpdf/%{name}.tar.gz
-# Source0-md5:	cdc27a1b1e3fe5dccd228f3973d4a2d8
+# Source0-md5:	dacacda02b84b1184235a5fab072fbd8
 URL:		http://www.foolabs.com/xpdf/
 Requires(post,preun):	grep
 Requires(post,preun):	xpdf
@@ -37,6 +37,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_datadir}/xpdf
 
 install *.unicodeMap $RPM_BUILD_ROOT%{_datadir}/xpdf
+install *.nameToUnicode $RPM_BUILD_ROOT%{_datadir}/xpdf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -45,9 +46,13 @@ rm -rf $RPM_BUILD_ROOT
 umask 022
 if [ ! -f /etc/xpdfrc ]; then
 	echo 'unicodeMap	ISO-8859-7	/usr/share/xpdf/ISO-8859-7.unicodeMap' >> /etc/xpdfrc
+	echo 'nameToUnicode			/usr/share/xpdf/Greek.nameToUnicode' >> /etc/xpdfrc
 else
  if ! grep -q 'ISO-8859-7\.unicodeMap' /etc/xpdfrc; then
 	echo 'unicodeMap	ISO-8859-7	/usr/share/xpdf/ISO-8859-7.unicodeMap' >> /etc/xpdfrc
+ fi
+ if ! grep -q 'Greek\.nameToUnicode' /etc/xpdfrc; then
+	echo 'nameToUnicode		/usr/share/xpdf/Greek.nameToUnicode' >> /etc/xpdfrc
  fi
 fi
 
@@ -55,7 +60,8 @@ fi
 if [ "$1" = "0" ]; then
 	umask 022
 	grep -v 'ISO-8859-7\.unicodeMap' /etc/xpdfrc > /etc/xpdfrc.new
-	mv -f /etc/xpdfrc.new /etc/xpdfrc
+	grep -v 'Greek\.nameToUnicode' /etc/xpdfrc.new > /etc/xpdfrc
+	rm -f /etc/xpdfrc.new
 fi
 
 %files
