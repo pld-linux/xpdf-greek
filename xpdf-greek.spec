@@ -2,13 +2,16 @@ Summary:	ISO-8859-7 encoding support for xpdf
 Summary(pl):	Wsparcie kodowania ISO-8859-7 dla xpdf
 Name:		xpdf-greek
 Version:	1.0
-Release:	1
+Release:	2
 License:	GPL
 Group:		X11/Applications
 Source0:	ftp://ftp.foolabs.com/pub/xpdf/%{name}.tar.gz
 URL:		http://www.foolabs.com/xpdf/
-Requires:	xpdf
 Requires(post,preun):	grep
+Requires(post,preun):	xpdf
+Requires(preun):	fileutils
+Requires:	xpdf
+BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_prefix		/usr/X11R6
@@ -40,16 +43,18 @@ install *.unicodeMap $RPM_BUILD_ROOT%{_datadir}/xpdf
 rm -rf $RPM_BUILD_ROOT
 
 %post
+umask 022
 if [ ! -f /etc/xpdfrc ]; then
 	echo 'unicodeMap	ISO-8859-7	/usr/X11R6/share/xpdf/ISO-8859-7.unicodeMap' >> /etc/xpdfrc
 else
- if ! grep -q /usr/X11R6/share/xpdf/ISO-8859-7.unicodeMap /etc/xpdfrc; then
+ if ! grep -q 'ISO-8859-7\.unicodeMap' /etc/xpdfrc; then
 	echo 'unicodeMap	ISO-8859-7	/usr/X11R6/share/xpdf/ISO-8859-7.unicodeMap' >> /etc/xpdfrc
  fi
 fi
 
 %preun
-grep -v /usr/X11R6/share/xpdf/ISO-8859-7.unicodeMap /etc/xpdfrc > /etc/xpdfrc.new
+umask 022
+grep -v 'ISO-8859-7\.unicodeMap' /etc/xpdfrc > /etc/xpdfrc.new
 mv -f /etc/xpdfrc.new /etc/xpdfrc
 
 %files
